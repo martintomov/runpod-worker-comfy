@@ -10,7 +10,7 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 [![Discord](https://img.shields.io/discord/1091306623819059300?color=7289da&label=Discord&logo=discord&logoColor=fff&style=for-the-badge)](https://discord.com/invite/m3TBB9XEkb)
 
-→ Please also checkout [Captain: The AI Platform](https://github.com/blib-la/captain)
+→ Please also check out [Captain: The AI Platform](https://github.com/blib-la/captain)
 
 ---
 
@@ -19,30 +19,31 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Quickstart](#quickstart)
 - [Features](#features)
 - [Config](#config)
-  * [Upload image to AWS S3](#upload-image-to-aws-s3)
+  - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
-  * [Create your template (optional)](#create-your-template-optional)
-  * [Create your endpoint](#create-your-endpoint)
-  * [GPU recommendations](#gpu-recommendations)
+  - [Create your template (optional)](#create-your-template-optional)
+  - [Create your endpoint](#create-your-endpoint)
+  - [GPU recommendations](#gpu-recommendations)
 - [API specification](#api-specification)
-  * [JSON Request Body](#json-request-body)
-  * [Fields](#fields)
-    + ["input.images"](#inputimages)
+  - [JSON Request Body](#json-request-body)
+  - [Fields](#fields)
+    - ["input.images"](#inputimages)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
-  * [Health status](#health-status)
-  * [Generate an image](#generate-an-image)
-    + [Example request for SDXL with cURL](#example-request-for-sdxl-with-curl)
+  - [Health status](#health-status)
+  - [Generate an image](#generate-an-image)
+    - [Example request for SDXL with cURL](#example-request-for-sdxl-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Bring Your Own Models and Nodes](#bring-your-own-models-and-nodes)
-  * [Network Volume](#network-volume)
-  * [Custom Docker Image](#custom-docker-image)
+  - [Network Volume](#network-volume)
+  - [Custom Nodes](#custom-nodes)
+  - [Custom Docker Image](#custom-docker-image)
 - [Local testing](#local-testing)
-  * [Setup](#setup)
-    + [Setup for Windows](#setup-for-windows)
-  * [Testing the RunPod handler](#testing-the-runpod-handler)
-  * [Local API](#local-api)
-    + [Access the local Worker API](#access-the-local-worker-api)
-    + [Access local ComfyUI](#access-local-comfyui)
+  - [Setup](#setup)
+    - [Setup for Windows](#setup-for-windows)
+  - [Testing the RunPod handler](#testing-the-runpod-handler)
+  - [Local API](#local-api)
+    - [Access the local Worker API](#access-the-local-worker-api)
+    - [Access local ComfyUI](#access-local-comfyui)
 - [Automatically deploy to Docker hub with GitHub Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgments](#acknowledgments)
 
@@ -54,8 +55,8 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 - 🐳 Choose one of the five available images for your serverless endpoint:
   - `timpietruskyblibla/runpod-worker-comfy:3.1.0-base`: doesn't contain anything, just a clean ComfyUI
-  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-schnell`: contains the checkpoint, text encoders and VAE for [FLUX.1 schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell)
-  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-dev`: contains the checkpoint, text encoders and VAE for [FLUX.1 dev](https://huggingface.co/black-forest-labs/FLUX.1-dev)
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-schnell`: contains the checkpoint, text encoders, and VAE for [FLUX.1 schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell)
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-dev`: contains the checkpoint, text encoders, and VAE for [FLUX.1 dev](https://huggingface.co/black-forest-labs/FLUX.1-dev)
   - `timpietruskyblibla/runpod-worker-comfy:3.1.0-sdxl`: contains the checkpoint and VAE for [Stable Diffusion XL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
   - `timpietruskyblibla/runpod-worker-comfy:3.1.0-sd3`: contains the checkpoint for [Stable Diffusion 3 medium](https://huggingface.co/stabilityai/stable-diffusion-3-medium)
 - ℹ️ [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
@@ -69,15 +70,15 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
   - Returned as base64-encoded string (default)
   - Uploaded to AWS S3 ([if AWS S3 is configured](#upload-image-to-aws-s3))
 - There are a few different Docker images to choose from:
-  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-schnell`: contains the [flux1-schnell.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) checkpoint, the [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors) + [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors) text encoders and [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors) VAE for FLUX.1-schnell
-  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-dev`: contains the [flux1-dev.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-dev) checkpoint, the [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors) + [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors) text encoders and [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors) VAE for FLUX.1-dev
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-schnell`: contains the [flux1-schnell.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) checkpoint, the [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors) + [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors) text encoders, and [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors) VAE for FLUX.1-schnell
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.0-flux1-dev`: contains the [flux1-dev.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-dev) checkpoint, the [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors) + [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors) text encoders, and [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors) VAE for FLUX.1-dev
   - `timpietruskyblibla/runpod-worker-comfy:3.1.0-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
     - Checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
     - VAEs:
       - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
       - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
   - `timpietruskyblibla/runpod-worker-comfy:3.1.0-sd3`: contains the [sd3_medium_incl_clips_t5xxlfp8.safetensors](https://huggingface.co/stabilityai/stable-diffusion-3-medium) checkpoint for Stable Diffusion 3 medium
-- [Bring your own models](#bring-your-own-models)
+- [Bring your own models and nodes](#bring-your-own-models-and-nodes)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
@@ -91,9 +92,9 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 ### Upload image to AWS S3
 
-This is only needed if you want to upload the generated picture to AWS S3. If you don't configure this, your image will be exported as base64-encoded string.
+This is only needed if you want to upload the generated picture to AWS S3. If you don't configure this, your image will be exported as a base64-encoded string.
 
-- Create a bucket in region of your choice in AWS S3 (`BUCKET_ENDPOINT_URL`)
+- Create a bucket in the region of your choice in AWS S3 (`BUCKET_ENDPOINT_URL`)
 - Create an IAM that has access rights to AWS S3
 - Create an Access-Key (`BUCKET_ACCESS_KEY_ID` & `BUCKET_SECRET_ACCESS_KEY`) for that IAM
 - Configure these environment variables for your RunPod worker:
@@ -112,7 +113,7 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 - In the dialog, configure:
   - Template Name: `runpod-worker-comfy` (it can be anything you want)
   - Template Type: serverless (change template type to "serverless")
-  - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:3.1.0-sd3` (or `-base` for a clean image or `-sdxl` for Stable Diffusion XL or `-flex1-schnell` for FLUX.1 schnell)
+  - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:3.1.0-sd3` (or `-base` for a clean image or `-sdxl` for Stable Diffusion XL or `-flux1-schnell` for FLUX.1 schnell)
   - Container Registry Credentials: You can leave everything as it is, as this repo is public
   - Container Disk: `20 GB`
   - (optional) Environment Variables: [Configure S3](#upload-image-to-aws-s3)
@@ -172,7 +173,7 @@ The following describes which fields exist when doing requests to the API. We on
 | ---------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `input`          | Object | Yes      | The top-level object containing the request data.                                                                                         |
 | `input.workflow` | Object | Yes      | Contains the ComfyUI workflow configuration.                                                                                              |
-| `input.images`   | Array  | No       | An array of images. Each image will be added into the "input"-folder of ComfyUI and can then be used in the workflow by using it's `name` |
+| `input.images`   | Array  | No       | An array of images. Each image will be added into the "input"-folder of ComfyUI and can then be used in the workflow by using its `name` |
 
 #### "input.images"
 
@@ -289,25 +290,89 @@ Using a Network Volume allows you to store and access custom models:
      - Either create a new endpoint or update an existing one.
      - In the endpoint configuration, under `Advanced > Select Network Volume`, select your Network Volume.
 
-Note: The folders in the Network Volume are automatically available to ComfyUI when the network volume is configured and attached.
+**Note:** The folders in the Network Volume are automatically available to ComfyUI when the network volume is configured and attached.
+
+### Custom Nodes
+
+To enhance the functionality of ComfyUI, you can install custom nodes. Follow these steps to set up and install custom nodes using the `custom_nodes` folder and the Comfy node registry.
+
+1. **Create the `custom_nodes` Directory**:
+   
+   - In your Network Volume or Docker image, create a directory named `custom_nodes` alongside the `models` directory.
+     ```bash
+     mkdir -p custom_nodes
+     ```
+
+2. **Install [comfy-cli](https://github.com/Comfy-Org/comfy-cli)**:
+
+   - Ensure that `comfy-cli` is installed in your environment. If it's not already installed, you can install it using pip:
+     ```bash
+     pip install comfy-cli
+     ```
+
+3. **Initialize the `custom_nodes` Directory**:
+   
+   - Navigate to the `custom_nodes` directory and initialize it for node installations.
+     ```bash
+     cd custom_nodes
+     comfy-cli init
+     ```
+
+4. **Browse the Comfy Node Registry**:
+   
+   - Visit the [ComfyUI Node Registry](https://registry.comfy.org/) to browse available custom nodes.
+
+5. **Install Custom Nodes**:
+   
+   - Use `comfy-cli` to install desired nodes from the registry. For example, to install a node named `ExampleNode`:
+     ```bash
+     comfy-cli install ExampleNode
+     ```
+   - You can install multiple nodes by repeating the install command with different node names.
+
+6. **Verify Installation**:
+   
+   - After installation, verify that the nodes are correctly added to the `custom_nodes` directory.
+     ```bash
+     ls custom_nodes
+     ```
+
+7. **Update the Docker Image or Network Volume**:
+   
+   - If you're using a Docker image, ensure that the `custom_nodes` directory is included in your image build process.
+   - If you're using a Network Volume, the nodes will be available once the volume is attached to your endpoint.
+
+**Example: Installing Multiple Nodes**
+
+```bash
+cd custom_nodes
+comfy-cli install NodeA
+comfy-cli install NodeB
+comfy-cli install NodeC
+```
+
+**Note:** Always ensure compatibility between custom nodes and your version of ComfyUI to prevent any runtime issues.
 
 ### Custom Docker Image
 
-If you prefer to include your models directly in the Docker image, follow these steps:
+If you prefer to include your models and custom nodes directly in the Docker image, follow these steps:
 
 1. **Fork the Repository**:
 
    - Fork this repository to your own GitHub account.
 
-2. **Add Your Models in the Dockerfile**:
+2. **Add Your Models and Nodes in the Dockerfile**:
 
-   - Edit the `Dockerfile` to include your models:
+   - Edit the `Dockerfile` to include your models and custom nodes.
      ```Dockerfile
+     # Install models
      RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
-     ```
-   - You can also add custom nodes:
-     ```Dockerfile
-     RUN git clone https://github.com/<username>/<custom-node-repo>.git custom_nodes/<custom-node-repo>
+
+     # Install custom nodes
+     RUN mkdir -p custom_nodes
+     RUN comfy-cli init custom_nodes
+     RUN comfy-cli install CustomNode1
+     RUN comfy-cli install CustomNode2
      ```
 
 3. **Build Your Docker Image**:
@@ -324,7 +389,7 @@ If you prefer to include your models directly in the Docker image, follow these 
      docker build --build-arg MODEL_TYPE=sd3 --build-arg HUGGINGFACE_ACCESS_TOKEN=<your-huggingface-token> -t <your_dockerhub_username>/runpod-worker-comfy:dev-sd3 --platform linux/amd64 .
      ```
 
-> [!NOTE]  
+> [!NOTE]
 > Ensure to specify `--platform linux/amd64` to avoid errors on RunPod, see [issue #13](https://github.com/blib-la/runpod-worker-comfy/issues/13).
 
 ## Local testing
